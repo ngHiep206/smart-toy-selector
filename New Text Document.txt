@@ -258,7 +258,7 @@
     <!-- JavaScript Xử lý Logic Form và API AI -->
     <script>
         // Cấu hình Gemini API
-        const apiKey = ""; // Được cung cấp bởi môi trường thực thi
+        const apiKey = "https://github.com/ngHiep206/smart-toy-selector.git"; // Được cung cấp bởi môi trường thực thi
 
         // Hàm gọi Gemini API có cơ chế retry (Exponential Backoff)
         async function fetchGeminiAPI(promptText) {
