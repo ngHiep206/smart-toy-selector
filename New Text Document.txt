@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Toy Selector - Nền tảng chọn đồ chơi khoa học cho bé</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        },
+                        accent: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        html { scroll-behavior: smooth; }
+
+        /* Toast Animation */
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 0.3s ease-out;
+        }
+        .toast-leave {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast-leave-active {
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: all 0.3s ease-in;
+        }
+        
+        /* Shimmer effect cho AI Loading */
+        .shimmer {
+            background: #f6f7f8;
+            background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+            background-repeat: no-repeat;
+            background-size: 800px 100%; 
+            animation-duration: 1.5s;
+            animation-fill-mode: forwards; 
+            animation-iteration-count: infinite;
+            animation-name: placeholderShimmer;
+            animation-timing-function: linear;
+        }
+        @keyframes placeholderShimmer {
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans relative">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-shapes text-brand-600 text-2xl mr-2"></i>
+                    <span class="font-bold text-xl text-brand-900 tracking-tight">Smart Toy Selector</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-600 hover:text-brand-600 font-semibold transition">Trang chủ</a>
+                    <a href="#ai-tool" class="text-gray-600 hover:text-brand-600 font-semibold transition flex items-center">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1 text-sm"></i> Trợ lý AI
+                    </a>
+                    <a href="#ai-tool" class="bg-brand-600 text-white px-5 py-2 rounded-full font-bold hover:bg-brand-700 transition shadow-md">
+                        Chọn Đồ Chơi Ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-brand-50 pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center">
+            <div class="md:w-1/2 mt-10 md:mt-0 md:pr-10 text-center md:text-left">
+                <h1 class="text-4xl font-extrabold text-brand-900 sm:text-5xl md:text-6xl leading-tight">
+                    Chọn đồ chơi đúng, <br>
+                    <span class="text-brand-600">Phát triển tương lai</span>
+                </h1>
+                <p class="mt-4 max-w-md mx-auto md:mx-0 text-lg text-gray-600 sm:text-xl md:mt-5 md:max-w-3xl">
+                    Ứng dụng công nghệ AI phân tích khoa học để giúp ba mẹ chọn đồ chơi phù hợp nhất cho trẻ 1 tuổi, kích thích trí tuệ và vận động thay vì thụ động.
+                </p>
+                <div class="mt-8 flex justify-center md:justify-start gap-4">
+                    <a href="#ai-tool" class="bg-accent-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-accent-600 transition shadow-lg flex items-center">
+                        <i class="fa-solid fa-robot mr-2"></i> Khám phá AI Miễn phí
+                    </a>
+                </div>
+            </div>
+            <div class="md:w-1/2">
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mẹ và bé chơi cùng nhau" class="w-full h-auto object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-sm border-l-4 border-brand-500">
+                        <p class="font-bold text-brand-900"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Tích hợp Google Gemini AI</p>
+                        <p class="text-sm text-gray-600">Phân tích chuyên sâu và đưa ra lời khuyên cá nhân hóa cho từng bé.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Tool Section -->
+    <div id="ai-tool" class="py-16 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-extrabold text-brand-900">Trợ Lý AI Smart Toy Selector</h2>
+                <p class="mt-4 text-lg text-gray-600">Nhập thông tin của bé, AI sẽ phân tích và đưa ra <strong>10 gợi ý</strong> kèm lời khuyên chuyên gia.</p>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-8 sm:p-10">
+                    <form id="ai-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Tuổi -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-cake-candles text-brand-500 mr-2"></i>Số tháng tuổi của bé (12-24)</label>
+                                <input type="number" id="age" required min="1" max="24" value="12" class="w-full border-gray-300 rounded-xl shadow-sm p-3 border focus:ring-brand-500 focus:border-brand-500 transition">
+                            </div>
+                            
+                            <!-- Ngân sách -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-bullseye text-brand-500 mr-2"></i>Mục tiêu của ba mẹ?</label>
+                                <select id="goal" class="w-full border-gray-300 rounded-xl shadow-sm p-3 border focus:ring-brand-500 focus:border-brand-500 bg-white transition">
+                                    <option value="independent">Rèn tính tự lập, bé tự chơi ngoan</option>
+                                    <option value="interactive">Tăng cường tương tác giữa ba mẹ và bé</option>
+                                    <option value="sensory">Kích thích đa giác quan và sáng tạo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Cột mốc phát triển -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-child-reaching text-brand-500 mr-2"></i>Cột mốc phát triển hiện tại của bé</label>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none border-gray-200 has-[:checked]:border-brand-500 has-[:checked]:ring-1 has-[:checked]:ring-brand-500 has-[:checked]:bg-brand-50 transition">
+                                    <input type="radio" name="milestone" value="motor" class="sr-only" checked>
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-bold text-gray-900">Vận động thô</span>
+                                        <span class="mt-1 flex items-center text-sm text-gray-500">Đang chập chững tập đi, thích kéo/đẩy, leo trèo.</span>
+                                    </span>
+                                </label>
+                                <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none border-gray-200 has-[:checked]:border-brand-500 has-[:checked]:ring-1 has-[:checked]:ring-brand-500 has-[:checked]:bg-brand-50 transition">
+                                    <input type="radio" name="milestone" value="language" class="sr-only">
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-bold text-gray-900">Ngôn ngữ & Cảm xúc</span>
+                                        <span class="mt-1 flex items-center text-sm text-gray-500">Bập bẹ tập nói, thích nghe kể chuyện.</span>
+                                    </span>
+                                </label>
+                                <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none border-gray-200 has-[:checked]:border-brand-500 has-[:checked]:ring-1 has-[:checked]:ring-brand-500 has-[:checked]:bg-brand-50 transition">
+                                    <input type="radio" name="milestone" value="cognitive" class="sr-only">
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-bold text-gray-900">Nhận thức & Tinh</span>
+                                        <span class="mt-1 flex items-center text-sm text-gray-500">Thích cầm nắm, nhặt đồ vật nhỏ, bỏ đồ vào hộp.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-bold text-lg py-4 rounded-xl hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-brand-300 transition shadow-lg flex justify-center items-center">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2 text-amber-300"></i> Phân tích & Lấy Gợi ý từ Gemini AI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden mt-12 flex flex-col items-center justify-center py-10">
+                <div class="loader mb-4 border-t-amber-500"></div>
+                <p class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-amber-500 font-bold text-xl animate-pulse">✨ Gemini AI đang phân tích hồ sơ của bé...</p>
+                <p class="text-gray-500 text-sm mt-2">Đang thiết kế lời khuyên cá nhân hóa và tìm kiếm sản phẩm phù hợp nhất</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden mt-12">
+                <!-- AI Personalized Advice Block -->
+                <div class="mb-10 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-lg font-extrabold text-indigo-900 mb-3 flex items-center">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-2"></i> Lời khuyên từ Chuyên gia AI
+                        </h3>
+                        <div id="ai-advice-content" class="text-indigo-800 leading-relaxed font-medium">
+                            <!-- Lời khuyên của AI sẽ được chèn vào đây -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Top 10 Đồ chơi đề xuất:</h3>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full"><i class="fa-solid fa-shield-check mr-1"></i>Đã kiểm duyệt an toàn</span>
+                </div>
+                
+                <!-- Cards Container -->
+                <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Cards will be injected here via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chi tiết Đồ chơi (Cửa sổ ẩn) -->
+    <div id="toy-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900 bg-opacity-60 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto relative flex flex-col">
+            <div id="modal-content">
+                <!-- Nội dung Modal sẽ được render tại đây -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-3"></div>
+
+    <!-- JavaScript Xử lý Logic Form và API AI -->
+    <script>
+        // Cấu hình Gemini API
+        const apiKey = ""; // Được cung cấp bởi môi trường thực thi
+
+        // Hàm gọi Gemini API có cơ chế retry (Exponential Backoff)
+        async function fetchGeminiAPI(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }]
+            };
+
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let attempt = 0; attempt <= delays.length; attempt++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if(text) return text;
+                    throw new Error("Empty response from AI");
+                } catch (error) {
+                    if (attempt === delays.length) {
+                        return "Rất tiếc, hệ thống AI đang bận. Vui lòng thử lại sau nhé!";
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+                }
+            }
+        }
+
+        // Cơ sở dữ liệu 10 đồ chơi
+        const toysDatabase = {
+            motor: [
+                { name: "Xe tập đi bằng gỗ chữ L", price: "250.000đ", image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Khuyến khích bé đứng thăng bằng và bước đi vững vàng.", howToPlay: "Mẹ ngồi phía trước cách 2m, gọi bé đẩy xe về phía mình.", tags: ["Vận động thô", "Tự lập"] },
+                { name: "Đồ chơi con chó kéo dây", price: "120.000đ", image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Tạo động lực để bé đi bộ nhiều hơn.", howToPlay: "Cho bé cầm dây và dắt 'bạn cún' đi dạo quanh phòng.", tags: ["Vận động", "Tương tác"] },
+                { name: "Bóng gai mềm đa giác quan", price: "150.000đ", image: "https://images.unsplash.com/photo-1592659762303-900828b4b281?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Bé chạy theo bóng giúp phát triển cơ bắp, gai mềm kích thích xúc giác.", howToPlay: "Lăn bóng qua lại với bé hoặc ném vào rổ.", tags: ["Xúc giác", "Vận động"] },
+                { name: "Hầm chui con sâu bằng vải", price: "190.000đ", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Khuyến khích bé bò trườn, phát triển cơ lưng và cổ.", howToPlay: "Ba mẹ nấp ở đầu kia hầm và gọi bé bò sang.", tags: ["Vận động thô", "Khám phá"] },
+                { name: "Thú nhún bơm hơi", price: "180.000đ", image: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Tăng cường sức mạnh cơ chân và khả năng giữ thăng bằng.", howToPlay: "Đỡ hông bé và hướng dẫn bé nhún nhảy tại chỗ.", tags: ["Cơ bắp", "Thăng bằng"] },
+                { name: "Xe chòi chân 4 bánh mini", price: "350.000đ", image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Phát triển lực đẩy của chân và kỹ năng định hướng không gian.", howToPlay: "Tạo một đường đua nhỏ bằng đệm để bé đẩy xe qua.", tags: ["Định hướng", "Vận động"] },
+                { name: "Khối bọt biển leo trèo (Soft Play)", price: "450.000đ", image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Tạo môi trường an toàn tuyệt đối cho bé tập leo trèo, vượt chướng ngại vật.", howToPlay: "Khuyến khích bé trèo qua khối cao để lấy món đồ chơi yêu thích.", tags: ["An toàn", "Vận động thô"] },
+                { name: "Trống gỗ đồ chơi", price: "140.000đ", image: "https://images.unsplash.com/photo-1592659762303-900828b4b281?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Tập cử động tay dứt khoát, rèn luyện sự phối hợp tay-mắt và thính giác.", howToPlay: "Gõ nhịp mẫu cho bé nghe, sau đó đưa dùi cho bé làm theo.", tags: ["Phối hợp", "Âm thanh"] },
+                { name: "Bể bóng mini trong nhà", price: "220.000đ", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Kích thích vận động toàn thân, giúp bé học cách trườn qua lớp bóng.", howToPlay: "Giấu một món đồ chơi nhỏ dưới đáy bể bóng và cùng bé tìm kiếm.", tags: ["Toàn thân", "Tương tác"] },
+                { name: "Đồ chơi đập bóng bằng búa nhựa", price: "110.000đ", image: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Phát triển lực của cánh tay và hiểu nguyên lý nhân-quả.", howToPlay: "Cầm tay bé hướng dẫn dùng búa đập nhẹ vào quả bóng màu.", tags: ["Vận động tay", "Nhân quả"] }
+            ],
+            language: [
+                { name: "Sách vải tương tác Nông trại", price: "180.000đ", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Chất liệu an toàn bé có thể gặm, hình ảnh động vật giúp nhận biết âm thanh.", howToPlay: "Ba mẹ chỉ vào con vật, đọc to tên và giả tiếng kêu.", tags: ["Ngôn ngữ", "Xúc giác"] },
+                { name: "Bộ Flashcard cỡ lớn", price: "90.000đ", image: "https://images.unsplash.com/photo-1605371924599-2d0365da1ae0?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Hình ảnh chân thực kích thích thị giác, nạp từ vựng vào não bộ.", howToPlay: "Tráo 5-10 thẻ nhanh trước mặt bé, đọc to rõ tên sự vật.", tags: ["Nhận thức", "Ngôn ngữ"] },
+                { name: "Điện thoại đồ chơi gỗ", price: "110.000đ", image: "https://images.unsplash.com/photo-1589425425662-ce46c6eb0d36?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Kích thích kỹ năng chơi giả vờ, tiền đề cho phát triển giao tiếp.", howToPlay: "Ba mẹ giả vờ gọi điện cho bé và chờ xem bé phản ứng.", tags: ["Giao tiếp", "Tưởng tượng"] },
+                { name: "Sách âm thanh động vật", price: "210.000đ", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Liên kết giữa hình ảnh động vật và âm thanh thực tế của chúng.", howToPlay: "Cho bé tự ấn nút, sau đó hỏi bé 'Con bò kêu thế nào nhỉ?'.", tags: ["Âm thanh", "Nhận biết"] },
+                { name: "Búp bê vải mềm an toàn", price: "160.000đ", image: "https://images.unsplash.com/photo-1605371924599-2d0365da1ae0?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Dạy bé về các bộ phận cơ thể và phát triển cảm xúc, sự gắn kết.", howToPlay: "Chỉ vào mũi búp bê, rồi chỉ vào mũi bé: 'Mũi của em bé đâu?'.", tags: ["Cảm xúc", "Cơ thể"] },
+                { name: "Micro đồ chơi vọng âm", price: "80.000đ", image: "https://images.unsplash.com/photo-1589425425662-ce46c6eb0d36?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Âm thanh vang lại khuyến khích bé phát âm, bập bẹ nhiều hơn.", howToPlay: "Hát một đoạn ngắn và đưa micro cho bé để bé 'hát' tiếp.", tags: ["Phát âm", "Tự tin"] },
+                { name: "Bộ rối ngón tay gia đình", price: "60.000đ", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Thu hút sự chú ý của bé, làm sinh động thêm các câu chuyện kể.", howToPlay: "Đeo rối vào ngón tay, tạo giọng nói khác nhau cho từng nhân vật.", tags: ["Kể chuyện", "Tập trung"] },
+                { name: "Sách Ehon Nhật Bản (Tranh to)", price: "150.000đ", image: "https://images.unsplash.com/photo-1605371924599-2d0365da1ae0?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Rèn thói quen đọc sách sớm, cốt truyện đơn giản giúp bé dễ hiểu.", howToPlay: "Đọc diễn cảm, nhấn nhá vào các từ tượng thanh như 'bộp bộp', 'rào rào'.", tags: ["Thói quen", "Từ vựng"] },
+                { name: "Gương đồ chơi an toàn", price: "100.000đ", image: "https://images.unsplash.com/photo-1589425425662-ce46c6eb0d36?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Bé nhìn khẩu hình miệng của mình trong gương, giúp phát triển cơ miệng.", howToPlay: "Cùng bé soi gương, làm các biểu cảm khuôn mặt ngộ nghĩnh.", tags: ["Biểu cảm", "Tự nhận thức"] },
+                { name: "Bảng ghép hình chữ cái nổi", price: "140.000đ", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Cho bé làm quen dần với mặt chữ thông qua việc sờ nắm hình khối.", howToPlay: "Không ép bé học chữ, chỉ để bé cầm nắm và đọc to 'Đây là chữ A'.", tags: ["Chữ cái", "Vận động tinh"] }
+            ],
+            cognitive: [
+                { name: "Hộp thả hình khối gỗ", price: "190.000đ", image: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Phát triển kỹ năng giải quyết vấn đề và vận động tinh.", howToPlay: "Cầm tay bé hướng dẫn thả vào lỗ đúng. Khen ngợi khi làm được.", tags: ["Tư duy", "Vận động tinh"] },
+                { name: "Bảng bận rộn (Busy Board)", price: "290.000đ", image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Giúp bé hiểu nguyên lý nhân-quả thực tế (bật công tắc, kéo khóa).", howToPlay: "Để bé tự do khám phá, thỉnh làm mẫu cho bé xem.", tags: ["Nhân quả", "Tự lập"] },
+                { name: "Tháp xếp chồng vòng tròn", price: "130.000đ", image: "https://images.unsplash.com/photo-1620861751381-80cf8dbd6ce9?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Học khái niệm to - nhỏ, trình tự và màu sắc cơ bản.", howToPlay: "Yêu cầu bé tìm 'vòng to nhất'. Để bé tự sửa sai khi xếp lộn xộn.", tags: ["Kích thước", "Logic"] },
+                { name: "Bảng ghép hình núm gỗ", price: "90.000đ", image: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Luyện cách cầm bằng 2-3 ngón tay (pincer grasp), nhận diện hình dạng.", howToPlay: "Đưa cho bé một mảnh ghép và chỉ vào ô trống tương ứng trên bảng.", tags: ["Hình dạng", "Vận động tinh"] },
+                { name: "Cốc xếp chồng 10 tầng", price: "80.000đ", image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Phát triển tư duy không gian (cái nhỏ lồng vào cái to).", howToPlay: "Xếp thành tháp cao rồi cho bé xô đổ, sau đó lồng các cốc vào nhau.", tags: ["Không gian", "Tư duy"] },
+                { name: "Đồ chơi luồn hạt gỗ", price: "150.000đ", image: "https://images.unsplash.com/photo-1620861751381-80cf8dbd6ce9?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Rèn luyện sự tập trung cao độ và sự khéo léo của cổ tay.", howToPlay: "Làm mẫu đẩy một hạt qua đường zigzag và cổ vũ bé làm theo.", tags: ["Tập trung", "Khéo léo"] },
+                { name: "Nhạc cụ gõ Xylophone", price: "160.000đ", image: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Phát triển thính giác, hiểu rằng lực gõ khác nhau tạo âm thanh khác nhau.", howToPlay: "Hướng dẫn bé dùng dùi gõ nhẹ lên các phím màu để tạo âm thanh.", tags: ["Âm nhạc", "Nhân quả"] },
+                { name: "Lego Duplo cỡ lớn", price: "350.000đ", image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Kích thích trí tưởng tượng không giới hạn, rèn lực ấn của tay.", howToPlay: "Cùng bé lắp ráp các khối lại với nhau thành một tòa tháp đơn giản.", tags: ["Sáng tạo", "Lắp ráp"] },
+                { name: "Trứng ghép hình phân loại màu", price: "120.000đ", image: "https://images.unsplash.com/photo-1620861751381-80cf8dbd6ce9?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Học cách phân loại (matching) màu sắc và hình dạng bên trong vỏ trứng.", howToPlay: "Tách đôi các quả trứng và yêu cầu bé tìm nửa còn lại có cùng màu.", tags: ["Phân loại", "Màu sắc"] },
+                { name: "Đồ chơi câu cá nam châm", price: "140.000đ", image: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", benefit: "Cực kỳ tốt cho sự phối hợp tay - mắt và sự kiên nhẫn của trẻ.", howToPlay: "Cầm cần câu làm mẫu, thả nam châm từ từ xuống con cá để hút lên.", tags: ["Kiên nhẫn", "Tay-mắt"] }
+            ]
+        };
+
+        // UI Toast Helper (Thay thế cho alert)
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 toast-enter-active';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i> <span class="font-semibold">${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('toast-enter-active');
+                toast.classList.add('toast-leave-active');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Lắng nghe Form Submit
+        document.getElementById('ai-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Ẩn kết quả cũ, hiện loading
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('loading-state').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Lấy dữ liệu form
+            const milestoneEl = document.querySelector('input[name="milestone"]:checked');
+            const milestone = milestoneEl.value;
+            const milestoneText = milestoneEl.nextElementSibling.querySelector('span.block').innerText;
+            
+            const goalEl = document.getElementById('goal');
+            const goalText = goalEl.options[goalEl.selectedIndex].text;
+
+            // GỌI GEMINI API CHO LỜI KHUYÊN CHUNG
+            const advicePrompt = `Đóng vai một chuyên gia giáo dục sớm nhi khoa. Phụ huynh có bé 1 tuổi đang ở giai đoạn: "${milestoneText}". Mục tiêu của ba mẹ là: "${goalText}". Hãy viết 1 đoạn văn ngắn (khoảng 3-4 câu) đưa ra lời khuyên khoa học, chân thành cho ba mẹ về cách tương tác và chọn đồ chơi cho bé trong giai đoạn này. Xưng hô là 'ba mẹ' và 'bé'. Chỉ trả về văn bản, không dùng ký tự markdown phức tạp.`;
+            
+            const adviceText = await fetchGeminiAPI(advicePrompt);
+            document.getElementById('ai-advice-content').innerHTML = `<p>${adviceText}</p>`;
+
+            // Render Danh sách 10 đồ chơi
+            let recommendedToys = toysDatabase[milestone];
+            const container = document.getElementById('results-container');
+            container.innerHTML = '';
+
+            recommendedToys.forEach((toy, index) => {
+                const delay = index * 100;
+                const cardHTML = `
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-xl transition duration-300 transform hover:-translate-y-1 flex flex-col" style="animation-delay: ${delay}ms; animation: fadeIn 0.5s ease-out forwards; opacity: 0;">
+                        <div class="h-48 overflow-hidden relative bg-gray-200">
+                            <img src="${toy.image}" alt="${toy.name}" class="w-full h-full object-cover">
+                            <div class="absolute top-3 right-3 bg-white px-2 py-1 rounded-md text-sm font-bold text-brand-600 shadow-sm">
+                                ${toy.price}
+                            </div>
+                            <div class="absolute top-3 left-3 bg-accent-500 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold shadow-md">
+                                #${index + 1}
+                            </div>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <div class="flex flex-wrap gap-1 mb-2">
+                                ${toy.tags.map(tag => `<span class="bg-brand-50 text-brand-700 text-xs px-2 py-1 rounded font-bold">${tag}</span>`).join('')}
+                            </div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-2 leading-tight">${toy.name}</h4>
+                            <div class="mt-2 space-y-3 flex-grow">
+                                <div>
+                                    <h5 class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1"><i class="fa-solid fa-brain text-purple-500 mr-1"></i> Lợi ích khoa học</h5>
+                                    <p class="text-sm text-gray-700 leading-snug line-clamp-2">${toy.benefit}</p>
+                                </div>
+                            </div>
+                            <button onclick="showToyDetails('${milestone}', ${index})" class="mt-4 w-full bg-brand-50 border-2 border-brand-600 text-brand-700 font-bold py-2.5 rounded-xl hover:bg-brand-600 hover:text-white transition flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-eye mr-2"></i> Xem chi tiết & Tương tác AI
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+
+            // Thêm CSS Animation nội tuyến cho thẻ
+            if(!document.getElementById('card-animation')) {
+                const style = document.createElement('style');
+                style.id = 'card-animation';
+                style.innerHTML = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // Hàm hiển thị Popup chi tiết đồ chơi
+        function showToyDetails(category, index) {
+            const toy = toysDatabase[category][index];
+            const modalContent = document.getElementById('modal-content');
+
+            modalContent.innerHTML = `
+                <div class="relative h-64 bg-gray-200 flex-shrink-0">
+                    <img src="${toy.image}" class="w-full h-full object-cover" alt="${toy.name}">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg text-gray-600 hover:text-red-500 transition z-10">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6 md:p-8 overflow-y-auto">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">${toy.name}</h3>
+                    <p class="text-brand-600 font-bold text-xl mb-6">${toy.price}</p>
+
+                    <div class="space-y-4 mb-6">
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                            <h4 class="font-bold text-purple-800 mb-2"><i class="fa-solid fa-brain mr-2"></i>Lợi ích phát triển</h4>
+                            <p class="text-gray-700 leading-relaxed">${toy.benefit}</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <h4 class="font-bold text-gray-800 mb-2"><i class="fa-solid fa-hands-holding-child mr-2"></i>Hướng dẫn cơ bản</h4>
+                            <p class="text-gray-600 leading-relaxed">${toy.howToPlay}</p>
+                        </div>
+                    </div>
+
+                    <!-- Gemini AI Feature Block in Modal -->
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-5 rounded-2xl border border-amber-200 shadow-inner mb-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-amber-900 text-lg flex items-center">
+                                <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-2"></i> Tương tác sáng tạo cùng AI
+                            </h4>
+                        </div>
+                        <p class="text-sm text-amber-800 mb-4">Bạn chưa biết cách thu hút bé với món đồ chơi này? Hãy để AI sáng tạo một trò chơi hoặc câu chuyện ngắn thú vị!</p>
+                        
+                        <button onclick="generateAIStory('${toy.name}')" id="btn-generate-story" class="w-full bg-white border border-amber-400 text-amber-700 font-bold py-2.5 rounded-xl hover:bg-amber-100 transition shadow-sm flex justify-center items-center">
+                            ✨ Tạo kịch bản chơi / Câu chuyện kể
+                        </button>
+
+                        <!-- Khu vực hiển thị kết quả AI -->
+                        <div id="ai-story-result" class="hidden mt-4 bg-white p-4 rounded-xl border border-amber-100 text-gray-700 text-sm leading-relaxed relative">
+                            <!-- Kết quả đổ về đây -->
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-auto">
+                        <button onclick="addToCart('${toy.name}')" class="flex-1 bg-brand-600 text-white font-bold py-3.5 rounded-xl hover:bg-brand-700 transition shadow-lg flex justify-center items-center">
+                            <i class="fa-solid fa-cart-plus mr-2"></i> Đặt mua ngay
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('toy-modal').classList.remove('hidden');
+        }
+
+        // TÍNH NĂNG AI: TẠO CÂU CHUYỆN / KỊCH BẢN CHƠI TRONG MODAL
+        async function generateAIStory(toyName) {
+            const btn = document.getElementById('btn-generate-story');
+            const resultDiv = document.getElementById('ai-story-result');
+            
+            // UI Loading state
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI đang sáng tác...`;
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `<div class="h-16 rounded-lg shimmer w-full"></div>`;
+
+            // Prompt cho Gemini
+            const prompt = `Hãy sáng tạo một kịch bản trò chơi tương tác ngắn hoặc một câu chuyện kể cực kỳ thú vị (dưới 100 chữ) để ba mẹ chơi cùng bé 1 tuổi với món đồ chơi: "${toyName}". Yêu cầu: Vui nhộn, kích thích trí tưởng tượng, có kèm một vài lời thoại mẫu hoặc âm thanh vui nhộn (như bùm, chéo, meo meo...) để ba mẹ bắt chước nói với bé. Đóng vai chuyên gia, bắt đầu thẳng vào nội dung.`;
+
+            // Gọi API
+            const storyText = await fetchGeminiAPI(prompt);
+            
+            // Xử lý xuống dòng HTML cơ bản
+            const formattedText = storyText.replace(/\n/g, '<br>');
+
+            // Hiển thị kết quả
+            resultDiv.innerHTML = `<p class="italic">"${formattedText}"</p>`;
+            btn.innerHTML = `✨ Tạo kịch bản khác`;
+            btn.disabled = false;
+        }
+
+        // Hàm Đóng Modal
+        function closeModal() {
+            document.getElementById('toy-modal').classList.add('hidden');
+        }
+
+        document.getElementById('toy-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Hàm Add To Cart dùng Toast
+        function addToCart(toyName) {
+            closeModal();
+            showToast(`Đã thêm <b>${toyName}</b> vào giỏ hàng!`);
+        }
+    </script>
+</body>
+</html>
