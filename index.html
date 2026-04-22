@@ -129,11 +129,11 @@
             </div>
             <div class="md:w-1/2">
                 <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mẹ và bé chơi cùng nhau" class="w-full h-auto object-cover">
+                    <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mẹ và bé chơi cùng nhau" class="w-full h-auto object-cover" onerror="this.src='https://via.placeholder.com/800x533?text=Me+va+Be';">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                     <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-sm border-l-4 border-brand-500">
-                        <p class="font-bold text-brand-900"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Tích hợp Google Gemini AI</p>
-                        <p class="text-sm text-gray-600">Phân tích chuyên sâu và đưa ra lời khuyên cá nhân hóa cho từng bé.</p>
+                        <p class="font-bold text-brand-900"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Trợ lý AI Chuyên Sâu</p>
+                        <p class="text-sm text-gray-600">Phân tích cột mốc phát triển và đưa ra lời khuyên cá nhân hóa cho từng bé.</p>
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Tuổi -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-cake-candles text-brand-500 mr-2"></i>Số tháng tuổi của bé (12-24)</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-cake-candles text-brand-500 mr-2"></i>Số tháng tuổi của bé (0-24)</label>
                                 <input type="number" id="age" required min="1" max="24" value="12" class="w-full border-gray-300 rounded-xl shadow-sm p-3 border focus:ring-brand-500 focus:border-brand-500 transition">
                             </div>
                             
@@ -199,7 +199,7 @@
 
                         <div class="pt-4">
                             <button type="submit" class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-bold text-lg py-4 rounded-xl hover:from-brand-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-brand-300 transition shadow-lg flex justify-center items-center">
-                                <i class="fa-solid fa-wand-magic-sparkles mr-2 text-amber-300"></i> Phân tích & Lấy Gợi ý từ Gemini AI
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2 text-amber-300"></i> Phân tích & Lấy Gợi ý từ AI
                             </button>
                         </div>
                     </form>
@@ -209,7 +209,7 @@
             <!-- Loading State -->
             <div id="loading-state" class="hidden mt-12 flex flex-col items-center justify-center py-10">
                 <div class="loader mb-4 border-t-amber-500"></div>
-                <p class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-amber-500 font-bold text-xl animate-pulse">✨ Gemini AI đang phân tích hồ sơ của bé...</p>
+                <p class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-amber-500 font-bold text-xl animate-pulse">✨ Hệ thống AI đang phân tích hồ sơ của bé...</p>
                 <p class="text-gray-500 text-sm mt-2">Đang thiết kế lời khuyên cá nhân hóa và tìm kiếm sản phẩm phù hợp nhất</p>
             </div>
 
@@ -257,34 +257,49 @@
 
     <!-- JavaScript Xử lý Logic Form và API AI -->
     <script>
-        // Cấu hình Gemini API
-        const apiKey = "https://github.com/ngHiep206/smart-toy-selector.git"; // Được cung cấp bởi môi trường thực thi
+        // CẤU HÌNH API BEEKNOEE
+        const BEEKNOEE_API_KEY = "sk-bee-1a4f7331cb0a405db9ed380676498f38"; 
 
-        // Hàm gọi Gemini API có cơ chế retry (Exponential Backoff)
-        async function fetchGeminiAPI(promptText) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        // Hàm gọi Beeknoee API có cơ chế retry
+        async function fetchAI(promptText) {
+            const url = `https://platform.beeknoee.com/api/v1/chat/completions`;
+            
+            // Cấu hình payload theo tài liệu của Beeknoee
             const payload = {
-                contents: [{ parts: [{ text: promptText }] }]
+                model: "deepseek-chat", // Default model như tài liệu đề xuất
+                messages: [
+                    {
+                        role: "user",
+                        content: promptText
+                    }
+                ],
+                temperature: 0.7
             };
 
-            const delays = [1000, 2000, 4000, 8000, 16000];
+            const delays = [1000, 2000, 4000, 8000];
             for (let attempt = 0; attempt <= delays.length; attempt++) {
                 try {
                     const response = await fetch(url, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${BEEKNOEE_API_KEY}`
+                        },
                         body: JSON.stringify(payload)
                     });
                     
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     
                     const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    
+                    // Lấy nội dung text từ response dựa theo chuẩn OpenAI/Beeknoee
+                    const text = result.choices?.[0]?.message?.content;
                     if(text) return text;
                     throw new Error("Empty response from AI");
                 } catch (error) {
+                    console.error("Lỗi gọi API:", error);
                     if (attempt === delays.length) {
-                        return "Rất tiếc, hệ thống AI đang bận. Vui lòng thử lại sau nhé!";
+                        return "Rất tiếc, hệ thống AI đang bận. Bạn hãy tải lại trang và thử lại nhé!";
                     }
                     await new Promise(resolve => setTimeout(resolve, delays[attempt]));
                 }
@@ -364,10 +379,10 @@
             const goalEl = document.getElementById('goal');
             const goalText = goalEl.options[goalEl.selectedIndex].text;
 
-            // GỌI GEMINI API CHO LỜI KHUYÊN CHUNG
+            // GỌI BEEKNOEE API CHO LỜI KHUYÊN CHUNG
             const advicePrompt = `Đóng vai một chuyên gia giáo dục sớm nhi khoa. Phụ huynh có bé 1 tuổi đang ở giai đoạn: "${milestoneText}". Mục tiêu của ba mẹ là: "${goalText}". Hãy viết 1 đoạn văn ngắn (khoảng 3-4 câu) đưa ra lời khuyên khoa học, chân thành cho ba mẹ về cách tương tác và chọn đồ chơi cho bé trong giai đoạn này. Xưng hô là 'ba mẹ' và 'bé'. Chỉ trả về văn bản, không dùng ký tự markdown phức tạp.`;
             
-            const adviceText = await fetchGeminiAPI(advicePrompt);
+            const adviceText = await fetchAI(advicePrompt);
             document.getElementById('ai-advice-content').innerHTML = `<p>${adviceText}</p>`;
 
             // Render Danh sách 10 đồ chơi
@@ -380,7 +395,7 @@
                 const cardHTML = `
                     <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-xl transition duration-300 transform hover:-translate-y-1 flex flex-col" style="animation-delay: ${delay}ms; animation: fadeIn 0.5s ease-out forwards; opacity: 0;">
                         <div class="h-48 overflow-hidden relative bg-gray-200">
-                            <img src="${toy.image}" alt="${toy.name}" class="w-full h-full object-cover">
+                            <img src="${toy.image}" alt="${toy.name}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=Toy';">
                             <div class="absolute top-3 right-3 bg-white px-2 py-1 rounded-md text-sm font-bold text-brand-600 shadow-sm">
                                 ${toy.price}
                             </div>
@@ -433,7 +448,7 @@
 
             modalContent.innerHTML = `
                 <div class="relative h-64 bg-gray-200 flex-shrink-0">
-                    <img src="${toy.image}" class="w-full h-full object-cover" alt="${toy.name}">
+                    <img src="${toy.image}" class="w-full h-full object-cover" alt="${toy.name}" onerror="this.src='https://via.placeholder.com/400x300?text=Toy';">
                     <button onclick="closeModal()" class="absolute top-4 right-4 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg text-gray-600 hover:text-red-500 transition z-10">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
@@ -454,7 +469,7 @@
                         </div>
                     </div>
 
-                    <!-- Gemini AI Feature Block in Modal -->
+                    <!-- AI Feature Block in Modal -->
                     <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-5 rounded-2xl border border-amber-200 shadow-inner mb-6">
                         <div class="flex items-center justify-between mb-3">
                             <h4 class="font-bold text-amber-900 text-lg flex items-center">
@@ -484,7 +499,7 @@
             document.getElementById('toy-modal').classList.remove('hidden');
         }
 
-        // TÍNH NĂNG AI: TẠO CÂU CHUYỆN / KỊCH BẢN CHƠI TRONG MODAL
+        // TÍNH NĂNG AI: TẠO CÂU CHUYỆN / KỊCH BẢN CHƠI TRONG MODAL BẰNG BEEKNOEE
         async function generateAIStory(toyName) {
             const btn = document.getElementById('btn-generate-story');
             const resultDiv = document.getElementById('ai-story-result');
@@ -495,11 +510,11 @@
             resultDiv.classList.remove('hidden');
             resultDiv.innerHTML = `<div class="h-16 rounded-lg shimmer w-full"></div>`;
 
-            // Prompt cho Gemini
+            // Prompt
             const prompt = `Hãy sáng tạo một kịch bản trò chơi tương tác ngắn hoặc một câu chuyện kể cực kỳ thú vị (dưới 100 chữ) để ba mẹ chơi cùng bé 1 tuổi với món đồ chơi: "${toyName}". Yêu cầu: Vui nhộn, kích thích trí tưởng tượng, có kèm một vài lời thoại mẫu hoặc âm thanh vui nhộn (như bùm, chéo, meo meo...) để ba mẹ bắt chước nói với bé. Đóng vai chuyên gia, bắt đầu thẳng vào nội dung.`;
 
             // Gọi API
-            const storyText = await fetchGeminiAPI(prompt);
+            const storyText = await fetchAI(prompt);
             
             // Xử lý xuống dòng HTML cơ bản
             const formattedText = storyText.replace(/\n/g, '<br>');
